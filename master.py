@@ -1,19 +1,39 @@
 import streamlit as st
-import pandas as pd
+import sklearn
+import joblib
 import numpy as np
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
 
-st.title("Doing Streamlit") # title
-st.header("Random Header")
-st.write("Hello Learners!") # used to print content on screen
+st.header("Dominant Colour Extraction")
 
-# Creates a dataframe
-df = pd.DataFrame({
-    'Name' : ['John', 'Bob', 'Mary', 'Adam'],
-    'Marks' : [78, 56, 96, 82]
-})
+st.subheader("Input Image")
+img = st.file_uploader("Choose an Image")
 
-st.write("Description of the Data Frame")
-st.write(df.describe())
+if img is not None:
+    st.header("Original Image")
+    st.image(img)
 
-st.write("Visualisation")
-st.line_chart(df['Marks'])
+    # KMEANS CODE
+
+    print(type(img))
+    img = plt.imread(img)
+
+    n = img.shape[0]*img.shape[1]
+    all_pixels = img.reshape((n, 3))
+
+    model  = KMeans(n_clusters = 5)
+    model.fit(all_pixels)
+
+    centers = model.cluster_centers_.astype('uint8')
+
+    new_img = np.zeros((n, 3), dtype='uint8')
+
+    for i in range(n):
+        group_idx = model.labels_[i]
+        new_img[i] = centers[group_idx]
+
+    new_img = new_img.reshape(*img.shape)
+
+    st.header("Modified Image")
+    st.image(new_img)
